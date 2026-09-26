@@ -1,0 +1,28 @@
+version: '3.8'
+
+# Production deploy with custom image from GHCR
+# Usage: docker compose -f docker-compose.prod.yml up -d
+
+services:
+  npm:
+    image: ghcr.io/mirozbiro/nginx-proxy-manager:custom
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    environment:
+      - TZ=Europe/Prague
+      - PUID=1000
+      - PGID=1000
+      # Auto-create admin on first run (optional)
+      # - INITIAL_ADMIN_EMAIL=admin@example.com
+      # - INITIAL_ADMIN_PASSWORD=changeme
+    volumes:
+      - npm_data:/data
+      - le_data:/etc/letsencrypt
+
+volumes:
+  npm_data:
+  le_data:
