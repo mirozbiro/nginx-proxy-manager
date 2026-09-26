@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  npm:
+    build:
+      context: .
+      dockerfile: Dockerfile.custom
+      args:
+        BUILD_VERSION: ${BUILD_VERSION:-local}
+        BUILD_COMMIT: ${BUILD_COMMIT:-$(git rev-parse --short HEAD)}
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    environment:
+      - TZ=Europe/Prague
+      - PUID=1000
+      - PGID=1000
+      # Auto-create admin user on first run (optional)
+      # - INITIAL_ADMIN_EMAIL=admin@example.com
+      # - INITIAL_ADMIN_PASSWORD=changeme
+      # Use Let's Encrypt staging for testing
+      # - LE_STAGING=true
+    volumes:
+      - npm_data:/data
+      - le_data:/etc/letsencrypt
+      # Custom nginx configs (auto-loaded)
+      # - ./custom/nginx/conf.d:/etc/nginx/conf.d:ro
+      # Custom nginx includes (manual include)
+      # - ./custom/nginx/includes:/etc/nginx/includes:ro
+      # Custom scripts
+      # - ./custom/scripts:/custom-scripts:ro
+
+volumes:
+  npm_data:
+  le_data:
